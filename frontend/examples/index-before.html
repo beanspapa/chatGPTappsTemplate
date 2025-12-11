@@ -1,0 +1,72 @@
+<!doctype html>
+<html data-theme="light">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Game Result Viewer - 경기 전</title>
+  <script>
+    // 경기 전 테스트 데이터
+    window.openai = {
+      theme: 'light',
+      toolOutput: {
+        sportType: 'basketball',
+        league: 'KBL',
+        date: '2025-12-15',
+        time: '19:00',
+        status: '경기전',
+        homeTeam: {
+          name: '서울 삼성 썬더스',
+          shortName: '서울 삼성',
+          logo: '',
+          score: 0,
+          record: '12승 6패',
+          players: [
+            { name: '이정현', number: 7, position: 'PG', minutes: 0, points: 0, rebounds: 0, assists: 0 },
+            { name: '김선형', number: 13, position: 'SG', minutes: 0, points: 0, rebounds: 0, assists: 0 },
+            { name: '오세근', number: 5, position: 'PF', minutes: 0, points: 0, rebounds: 0, assists: 0 }
+          ],
+          recentGames: ['W', 'W', 'W', 'L', 'W']
+        },
+        awayTeam: {
+          name: '부산 KT 소닉붐',
+          shortName: '부산 KT',
+          logo: '',
+          score: 0,
+          record: '10승 8패',
+          players: [
+            { name: '허웅', number: 7, position: 'SF', minutes: 0, points: 0, rebounds: 0, assists: 0 },
+            { name: '송교창', number: 1, position: 'PG', minutes: 0, points: 0, rebounds: 0, assists: 0 },
+            { name: '양홍석', number: 33, position: 'C', minutes: 0, points: 0, rebounds: 0, assists: 0 }
+          ],
+          recentGames: ['L', 'W', 'L', 'W', 'W']
+        },
+        headToHead: {
+          totalGames: 8,
+          homeWins: 5,
+          awayWins: 3,
+          recentMatches: [
+            { date: '2025-11-20', homeScore: 88, awayScore: 82, winner: 'home' },
+            { date: '2025-10-15', homeScore: 79, awayScore: 85, winner: 'away' },
+            { date: '2025-03-22', homeScore: 92, awayScore: 88, winner: 'home' }
+          ]
+        },
+        standings: [
+          {
+            teams: [
+              { rank: 1, name: '서울 SK 나이츠', shortName: 'SK', wins: 14, losses: 4, winRate: '.778', recentGames: ['W', 'W', 'W', 'W', 'W'] },
+              { rank: 2, name: '서울 삼성 썬더스', shortName: '삼성', wins: 12, losses: 6, winRate: '.667', recentGames: ['W', 'W', 'W', 'L', 'W'] },
+              { rank: 3, name: '안양 KGC 인삼공사', shortName: 'KGC', wins: 11, losses: 7, winRate: '.611', recentGames: ['W', 'L', 'W', 'W', 'L'] },
+              { rank: 4, name: '부산 KT 소닉붐', shortName: 'KT', wins: 10, losses: 8, winRate: '.556', recentGames: ['L', 'W', 'L', 'W', 'W'] },
+              { rank: 5, name: '원주 DB 프로미', shortName: 'DB', wins: 9, losses: 9, winRate: '.500', recentGames: ['L', 'L', 'W', 'W', 'L'] }
+            ]
+          }
+        ]
+      }
+    };
+  </script>
+</head>
+<body>
+  <div id="game-result-viewer-root"></div>
+  <script type="module" src="/src/game-result-viewer/index.tsx"></script>
+</body>
+</html>

@@ -1,0 +1,91 @@
+<!doctype html>
+<html data-theme="light">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Game Result Viewer - 경기 종료</title>
+  <script>
+    // 경기 종료 테스트 데이터
+    window.openai = {
+      theme: 'light',
+      toolOutput: {
+        sportType: 'basketball',
+        league: 'NBA',
+        date: '2025-12-10',
+        status: '경기종료',
+        homeTeam: {
+          name: 'Boston Celtics',
+          shortName: 'BOS',
+          logo: '',
+          score: 118,
+          record: '20승 4패',
+          quarterScores: { q1: 32, q2: 28, q3: 30, q4: 28 },
+          players: [
+            { name: 'Jayson Tatum', number: 0, position: 'SF', minutes: 36, points: 35, rebounds: 9, assists: 6 },
+            { name: 'Jaylen Brown', number: 7, position: 'SG', minutes: 34, points: 28, rebounds: 5, assists: 4 },
+            { name: 'Derrick White', number: 9, position: 'PG', minutes: 32, points: 18, rebounds: 3, assists: 7 },
+            { name: 'Al Horford', number: 42, position: 'C', minutes: 28, points: 12, rebounds: 8, assists: 3 },
+            { name: 'Kristaps Porzingis', number: 8, position: 'PF', minutes: 26, points: 22, rebounds: 10, assists: 2 }
+          ],
+          recentGames: ['W', 'W', 'W', 'W', 'W']
+        },
+        awayTeam: {
+          name: 'Miami Heat',
+          shortName: 'MIA',
+          logo: '',
+          score: 105,
+          record: '12승 12패',
+          quarterScores: { q1: 28, q2: 25, q3: 26, q4: 26 },
+          players: [
+            { name: 'Jimmy Butler', number: 22, position: 'SF', minutes: 38, points: 30, rebounds: 7, assists: 5 },
+            { name: 'Bam Adebayo', number: 13, position: 'C', minutes: 36, points: 22, rebounds: 12, assists: 4 },
+            { name: 'Tyler Herro', number: 14, position: 'SG', minutes: 32, points: 20, rebounds: 4, assists: 6 },
+            { name: 'Terry Rozier', number: 2, position: 'PG', minutes: 30, points: 15, rebounds: 3, assists: 5 },
+            { name: 'Caleb Martin', number: 16, position: 'PF', minutes: 24, points: 10, rebounds: 5, assists: 2 }
+          ],
+          recentGames: ['L', 'W', 'L', 'L', 'W']
+        },
+        gameRecords: [
+          { label: '2점슛', home: '32/58', away: '28/55' },
+          { label: '3점슛', home: '14/35', away: '11/32' },
+          { label: '자유투', home: '26/30', away: '24/28' },
+          { label: '리바운드', home: 48, away: 42 },
+          { label: '어시스트', home: 28, away: 22 },
+          { label: '스틸', home: 8, away: 5 },
+          { label: '블록', home: 6, away: 4 },
+          { label: '턴오버', home: 10, away: 14 },
+          { label: '파울', home: 18, away: 22 }
+        ],
+        headToHead: {
+          totalGames: 10,
+          homeWins: 7,
+          awayWins: 3,
+          recentMatches: [
+            { date: '2025-12-10', homeScore: 118, awayScore: 105, winner: 'home' },
+            { date: '2025-11-05', homeScore: 110, awayScore: 115, winner: 'away' },
+            { date: '2025-05-25', homeScore: 108, awayScore: 95, winner: 'home' },
+            { date: '2025-05-23', homeScore: 102, awayScore: 98, winner: 'home' },
+            { date: '2025-05-21', homeScore: 95, awayScore: 102, winner: 'away' }
+          ]
+        },
+        standings: [
+          {
+            conference: '동부',
+            teams: [
+              { rank: 1, name: 'Boston Celtics', shortName: 'BOS', wins: 20, losses: 4, winRate: '.833', recentGames: ['W', 'W', 'W', 'W', 'W'] },
+              { rank: 2, name: 'Cleveland Cavaliers', shortName: 'CLE', wins: 18, losses: 6, winRate: '.750', recentGames: ['W', 'W', 'L', 'W', 'W'] },
+              { rank: 3, name: 'New York Knicks', shortName: 'NYK', wins: 16, losses: 8, winRate: '.667', recentGames: ['W', 'L', 'W', 'W', 'L'] },
+              { rank: 4, name: 'Milwaukee Bucks', shortName: 'MIL', wins: 14, losses: 10, winRate: '.583', recentGames: ['L', 'W', 'W', 'L', 'W'] },
+              { rank: 5, name: 'Miami Heat', shortName: 'MIA', wins: 12, losses: 12, winRate: '.500', recentGames: ['L', 'W', 'L', 'L', 'W'] }
+            ]
+          }
+        ]
+      }
+    };
+  </script>
+</head>
+<body>
+  <div id="game-result-viewer-root"></div>
+  <script type="module" src="/src/game-result-viewer/index.tsx"></script>
+</body>
+</html>

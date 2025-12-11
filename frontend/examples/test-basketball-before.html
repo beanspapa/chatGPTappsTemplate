@@ -1,0 +1,75 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Basketball Viewer Test - 경기전</title>
+</head>
+<body class="bg-gray-100 p-4">
+  <div id="game-result-viewer-root"></div>
+
+  <script>
+    // Mock OpenAI Apps SDK data - 경기전 상태
+    window.openai = {
+      toolOutput: {
+        sportType: 'basketball',
+        league: 'NBA',
+        date: '12.10',
+        time: '10:00 AM',
+        status: '경기전',
+        homeTeam: {
+          name: '클리블랜드 캐벌리어스',
+          shortName: '클리블랜드',
+          logo: '',
+          record: '15승 3패',
+          score: 0,
+          players: [],
+          recentGames: ['W', 'W', 'W', 'L', 'W'],
+        },
+        awayTeam: {
+          name: '골든스테이트 워리어스',
+          shortName: '골든스테이트',
+          logo: '',
+          record: '10승 8패',
+          score: 0,
+          players: [],
+          recentGames: ['L', 'W', 'W', 'L', 'W'],
+        },
+        headToHead: {
+          totalGames: 5,
+          homeWins: 3,
+          awayWins: 2,
+          recentMatches: [
+            { date: '11.28', homeScore: 105, awayScore: 98, winner: 'home' },
+            { date: '10.15', homeScore: 112, awayScore: 118, winner: 'away' },
+            { date: '04.02', homeScore: 108, awayScore: 102, winner: 'home' },
+          ],
+        },
+        standings: [
+          {
+            conference: '동부',
+            teams: [
+              { rank: 1, name: '클리블랜드 캐벌리어스', shortName: '클리블랜드', wins: 15, losses: 3, winRate: '.833', recentGames: ['W', 'W', 'W', 'L', 'W'] },
+              { rank: 2, name: '보스턴 셀틱스', shortName: '보스턴', wins: 14, losses: 4, winRate: '.778', recentGames: ['W', 'W', 'L', 'W', 'W'] },
+              { rank: 3, name: '올랜도 매직', shortName: '올랜도', wins: 13, losses: 6, winRate: '.684', recentGames: ['W', 'L', 'W', 'W', 'L'] },
+              { rank: 4, name: '뉴욕 닉스', shortName: '뉴욕', wins: 11, losses: 7, winRate: '.611', recentGames: ['L', 'W', 'W', 'L', 'W'] },
+              { rank: 5, name: '밀워키 벅스', shortName: '밀워키', wins: 10, losses: 8, winRate: '.556', recentGames: ['W', 'L', 'L', 'W', 'W'] },
+            ],
+          },
+          {
+            conference: '서부',
+            teams: [
+              { rank: 1, name: '오클라호마시티 썬더', shortName: '오클라호마', wins: 15, losses: 4, winRate: '.789', recentGames: ['W', 'W', 'W', 'W', 'L'] },
+              { rank: 2, name: '골든스테이트 워리어스', shortName: '골든스테이트', wins: 10, losses: 8, winRate: '.556', recentGames: ['L', 'W', 'W', 'L', 'W'] },
+              { rank: 3, name: '휴스턴 로키츠', shortName: '휴스턴', wins: 11, losses: 7, winRate: '.611', recentGames: ['W', 'W', 'L', 'W', 'L'] },
+              { rank: 4, name: '덴버 너기츠', shortName: '덴버', wins: 10, losses: 7, winRate: '.588', recentGames: ['L', 'W', 'W', 'W', 'L'] },
+              { rank: 5, name: 'LA 클리퍼스', shortName: 'LA 클리퍼스', wins: 10, losses: 8, winRate: '.556', recentGames: ['W', 'L', 'W', 'L', 'W'] },
+            ],
+          },
+        ],
+      }
+    };
+  </script>
+  <script type="module" src="./src/game-result-viewer/index.tsx"></script>
+</body>
+</html>
