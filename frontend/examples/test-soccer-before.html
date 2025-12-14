@@ -1,0 +1,76 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Soccer Viewer Test - 경기전</title>
+  <link href="https://fonts.googleapis.com/css2?family=Oswald:wght@400;600;700&family=Noto+Sans+KR:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <style>
+    @keyframes fadeInUp {
+      from { opacity: 0; transform: translateY(20px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+  </style>
+</head>
+<body style="background: linear-gradient(135deg, #f5f7fa 0%, #e4e8ec 100%); min-height: 100vh; padding: 20px; margin: 0;">
+  <div id="game-result-viewer-root"></div>
+
+  <script>
+    // Mock OpenAI Apps SDK data - 경기전 상태 (K리그1)
+    window.openai = {
+      toolOutput: {
+        sportType: 'soccer',
+        league: 'K리그1',
+        date: '12.14',
+        time: '19:30',
+        status: '경기전',
+        homeTeam: {
+          name: '전북 현대 모터스',
+          shortName: '전북',
+          logo: '',
+          record: '17승 7무 5패',
+          score: 0,
+          players: [],
+          recentGames: ['W', 'W', 'D', 'W', 'L'],
+          primaryColor: '#006B3F',
+          secondaryColor: '#FFFFFF',
+        },
+        awayTeam: {
+          name: '울산 현대 FC',
+          shortName: '울산',
+          logo: '',
+          record: '16승 8무 5패',
+          score: 0,
+          players: [],
+          recentGames: ['W', 'D', 'W', 'L', 'W'],
+          primaryColor: '#004B87',
+          secondaryColor: '#FF6600',
+        },
+        headToHead: {
+          totalGames: 10,
+          homeWins: 4,
+          awayWins: 3,
+          draws: 3,
+          recentMatches: [
+            { date: '08.15', homeScore: 1, awayScore: 1, winner: 'draw' },
+            { date: '04.20', homeScore: 2, awayScore: 1, winner: 'home' },
+            { date: '11.05', homeScore: 0, awayScore: 2, winner: 'away' },
+          ],
+        },
+        standings: [
+          {
+            teams: [
+              { rank: 1, name: '전북 현대 모터스', shortName: '전북', played: 29, wins: 17, draws: 7, losses: 5, goalsFor: 50, goalsAgainst: 27, goalDifference: 23, points: 58, recentGames: ['W', 'W', 'D', 'W', 'L'] },
+              { rank: 2, name: '울산 현대 FC', shortName: '울산', played: 29, wins: 16, draws: 8, losses: 5, goalsFor: 47, goalsAgainst: 28, goalDifference: 19, points: 56, recentGames: ['W', 'D', 'W', 'L', 'W'] },
+              { rank: 3, name: 'FC 서울', shortName: '서울', played: 29, wins: 14, draws: 9, losses: 6, goalsFor: 41, goalsAgainst: 30, goalDifference: 11, points: 51, recentGames: ['D', 'W', 'W', 'L', 'W'] },
+              { rank: 4, name: '포항 스틸러스', shortName: '포항', played: 29, wins: 13, draws: 10, losses: 6, goalsFor: 37, goalsAgainst: 26, goalDifference: 11, points: 49, recentGames: ['W', 'D', 'D', 'W', 'L'] },
+              { rank: 5, name: '제주 유나이티드', shortName: '제주', played: 29, wins: 12, draws: 8, losses: 9, goalsFor: 34, goalsAgainst: 30, goalDifference: 4, points: 44, recentGames: ['L', 'W', 'D', 'L', 'W'] },
+            ],
+          },
+        ],
+      }
+    };
+  </script>
+  <script type="module" src="./src/game-result-viewer/index.tsx"></script>
+</body>
+</html>

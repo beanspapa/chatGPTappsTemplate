@@ -1,8 +1,9 @@
 import { createRoot } from 'react-dom/client';
 import { useState, useEffect } from 'react';
 import { z } from 'zod';
-import { SportTypeSchema, type SportType } from './types';
-import { BasketballViewer, BasketballGameDataSchema, type BasketballGameData } from './sports/basketball';
+import { BasketballViewer, BasketballGameDataSchema } from './sports/basketball';
+import { VolleyballViewer, VolleyballGameDataSchema } from './sports/volleyball';
+import { SoccerViewer, SoccerGameDataSchema } from './sports/soccer';
 import '../index.css';
 
 // Declare global window type for OpenAI Apps SDK
@@ -63,10 +64,10 @@ function useTheme() {
 // 전체 게임 데이터 스키마 (sportType으로 분기)
 const GameDataSchema = z.discriminatedUnion('sportType', [
   BasketballGameDataSchema,
+  VolleyballGameDataSchema,
+  SoccerGameDataSchema,
   // 추후 다른 스포츠 스키마 추가
-  // SoccerGameDataSchema,
   // BaseballGameDataSchema,
-  // VolleyballGameDataSchema,
 ]);
 
 type GameData = z.infer<typeof GameDataSchema>;
@@ -110,13 +111,13 @@ function SportViewer({ data }: { data: GameData }) {
   switch (data.sportType) {
     case 'basketball':
       return <BasketballViewer data={data} />;
+    case 'volleyball':
+      return <VolleyballViewer data={data} />;
+    case 'soccer':
+      return <SoccerViewer data={data} />;
     // 추후 다른 스포츠 뷰어 추가
-    // case 'soccer':
-    //   return <SoccerViewer data={data} />;
     // case 'baseball':
     //   return <BaseballViewer data={data} />;
-    // case 'volleyball':
-    //   return <VolleyballViewer data={data} />;
     default:
       return <UnsupportedSport sportType={(data as any).sportType} />;
   }

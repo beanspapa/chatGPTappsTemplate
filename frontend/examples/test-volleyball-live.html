@@ -1,0 +1,85 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Volleyball Viewer Test - 경기중</title>
+  <link href="https://fonts.googleapis.com/css2?family=Oswald:wght@400;600;700&family=Noto+Sans+KR:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <style>
+    @keyframes fadeInUp {
+      from { opacity: 0; transform: translateY(20px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+  </style>
+</head>
+<body style="background: linear-gradient(135deg, #f5f7fa 0%, #e4e8ec 100%); min-height: 100vh; padding: 20px; margin: 0;">
+  <div id="game-result-viewer-root"></div>
+
+  <script>
+    // Mock OpenAI Apps SDK data - 경기중 상태
+    window.openai = {
+      toolOutput: {
+        sportType: 'volleyball',
+        league: 'V리그남자',
+        date: '12.14',
+        status: '경기중',
+        currentSet: 3,
+        homeTeam: {
+          name: '삼성화재 블루팡스',
+          shortName: '삼성화재',
+          logo: '',
+          record: '19승 17패',
+          setsWon: 1,
+          setScores: { set1: 25, set2: 22, set3: 18 },
+          players: [],
+          recentGames: ['W', 'L', 'W', 'W', 'L'],
+          primaryColor: '#034EA2',
+          secondaryColor: '#FFFFFF',
+        },
+        awayTeam: {
+          name: 'KB손해보험 스타즈',
+          shortName: 'KB손해보험',
+          logo: '',
+          record: '18승 18패',
+          setsWon: 1,
+          setScores: { set1: 23, set2: 25, set3: 15 },
+          players: [],
+          recentGames: ['L', 'W', 'L', 'W', 'W'],
+          primaryColor: '#FFB81C',
+          secondaryColor: '#000000',
+        },
+        gameRecords: [
+          { label: '공격 성공률', home: '42%', away: '38%' },
+          { label: '블로킹', home: 8, away: 6 },
+          { label: '서브 에이스', home: 3, away: 2 },
+          { label: '디그', home: 32, away: 28 },
+          { label: '리시브 효율', home: '45%', away: '42%' },
+          { label: '서브 실책', home: 3, away: 4 },
+        ],
+        headToHead: {
+          totalGames: 6,
+          homeWins: 3,
+          awayWins: 3,
+          recentMatches: [
+            { date: '11.15', homeSets: 3, awaySets: 2, winner: 'home' },
+            { date: '09.28', homeSets: 1, awaySets: 3, winner: 'away' },
+            { date: '03.10', homeSets: 3, awaySets: 1, winner: 'home' },
+          ],
+        },
+        standings: [
+          {
+            teams: [
+              { rank: 1, name: '현대캐피탈 스카이워커스', shortName: '현대캐피탈', wins: 25, losses: 11, winRate: '.694', recentGames: ['W', 'W', 'W', 'L', 'W'] },
+              { rank: 2, name: '대한항공 점보스', shortName: '대한항공', wins: 20, losses: 16, winRate: '.556', recentGames: ['L', 'W', 'W', 'L', 'W'] },
+              { rank: 3, name: '삼성화재 블루팡스', shortName: '삼성화재', wins: 19, losses: 17, winRate: '.528', recentGames: ['W', 'L', 'W', 'W', 'L'] },
+              { rank: 4, name: 'KB손해보험 스타즈', shortName: 'KB손해보험', wins: 18, losses: 18, winRate: '.500', recentGames: ['L', 'W', 'L', 'W', 'W'] },
+              { rank: 5, name: '우리카드 우리WON', shortName: '우리카드', wins: 15, losses: 21, winRate: '.417', recentGames: ['L', 'L', 'W', 'L', 'W'] },
+            ],
+          },
+        ],
+      }
+    };
+  </script>
+  <script type="module" src="./src/game-result-viewer/index.tsx"></script>
+</body>
+</html>

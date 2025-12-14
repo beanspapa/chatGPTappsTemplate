@@ -1,0 +1,98 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Volleyball Viewer Test - 경기종료</title>
+  <link href="https://fonts.googleapis.com/css2?family=Oswald:wght@400;600;700&family=Noto+Sans+KR:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <style>
+    @keyframes fadeInUp {
+      from { opacity: 0; transform: translateY(20px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+  </style>
+</head>
+<body style="background: linear-gradient(135deg, #f5f7fa 0%, #e4e8ec 100%); min-height: 100vh; padding: 20px; margin: 0;">
+  <div id="game-result-viewer-root"></div>
+
+  <script>
+    // Mock OpenAI Apps SDK data - 경기종료 상태
+    window.openai = {
+      toolOutput: {
+        sportType: 'volleyball',
+        league: 'V리그남자',
+        date: '12.14',
+        status: '경기종료',
+        homeTeam: {
+          name: '현대캐피탈 스카이워커스',
+          shortName: '현대캐피탈',
+          logo: '',
+          record: '25승 11패',
+          setsWon: 3,
+          setScores: { set1: 25, set2: 22, set3: 25, set4: 25 },
+          players: [
+            { number: 1, name: '여오현', position: 'S', sets: 4, points: 5, attacks: 10, kills: 3, attackPct: '30%', blocks: 2, aces: 0, digs: 8, assists: 35 },
+            { number: 7, name: '정지석', position: 'OH', sets: 4, points: 22, attacks: 45, kills: 18, attackPct: '40%', blocks: 2, aces: 2, digs: 12 },
+            { number: 10, name: '임동혁', position: 'OH', sets: 4, points: 15, attacks: 35, kills: 12, attackPct: '34%', blocks: 1, aces: 2, digs: 8 },
+            { number: 17, name: '에스페호', position: 'OP', sets: 4, points: 25, attacks: 48, kills: 21, attackPct: '44%', blocks: 3, aces: 1, digs: 5 },
+            { number: 5, name: '최민호', position: 'MB', sets: 4, points: 10, attacks: 15, kills: 7, attackPct: '47%', blocks: 3, aces: 0, digs: 2 },
+            { number: 3, name: '김선호', position: 'L', sets: 4, points: 0, attacks: 0, kills: 0, attackPct: '0%', blocks: 0, aces: 0, digs: 25 },
+          ],
+          recentGames: ['W', 'W', 'W', 'L', 'W'],
+          primaryColor: '#003DA5',
+          secondaryColor: '#FFD700',
+        },
+        awayTeam: {
+          name: '대한항공 점보스',
+          shortName: '대한항공',
+          logo: '',
+          record: '20승 16패',
+          setsWon: 1,
+          setScores: { set1: 23, set2: 25, set3: 20, set4: 21 },
+          players: [
+            { number: 2, name: '한선수', position: 'S', sets: 4, points: 3, attacks: 8, kills: 2, attackPct: '25%', blocks: 1, aces: 0, digs: 6, assists: 28 },
+            { number: 11, name: '전광인', position: 'OH', sets: 4, points: 18, attacks: 42, kills: 14, attackPct: '33%', blocks: 2, aces: 2, digs: 10 },
+            { number: 8, name: '정민수', position: 'OH', sets: 4, points: 12, attacks: 30, kills: 10, attackPct: '33%', blocks: 1, aces: 1, digs: 7 },
+            { number: 21, name: '가스파리니', position: 'OP', sets: 4, points: 20, attacks: 45, kills: 16, attackPct: '36%', blocks: 2, aces: 2, digs: 4 },
+            { number: 15, name: '김규민', position: 'MB', sets: 4, points: 8, attacks: 12, kills: 5, attackPct: '42%', blocks: 3, aces: 0, digs: 1 },
+            { number: 6, name: '김지한', position: 'L', sets: 4, points: 0, attacks: 0, kills: 0, attackPct: '0%', blocks: 0, aces: 0, digs: 22 },
+          ],
+          recentGames: ['L', 'W', 'W', 'L', 'W'],
+          primaryColor: '#E31837',
+          secondaryColor: '#FFFFFF',
+        },
+        gameRecords: [
+          { label: '공격 성공률', home: '45%', away: '42%' },
+          { label: '블로킹', home: 12, away: 8 },
+          { label: '서브 에이스', home: 5, away: 3 },
+          { label: '디그', home: 45, away: 42 },
+          { label: '리시브 효율', home: '48%', away: '45%' },
+          { label: '서브 실책', home: 4, away: 6 },
+        ],
+        headToHead: {
+          totalGames: 8,
+          homeWins: 5,
+          awayWins: 3,
+          recentMatches: [
+            { date: '11.20', homeSets: 3, awaySets: 1, winner: 'home' },
+            { date: '10.05', homeSets: 2, awaySets: 3, winner: 'away' },
+            { date: '03.15', homeSets: 3, awaySets: 0, winner: 'home' },
+          ],
+        },
+        standings: [
+          {
+            teams: [
+              { rank: 1, name: '현대캐피탈 스카이워커스', shortName: '현대캐피탈', wins: 25, losses: 11, winRate: '.694', recentGames: ['W', 'W', 'W', 'L', 'W'] },
+              { rank: 2, name: '대한항공 점보스', shortName: '대한항공', wins: 20, losses: 16, winRate: '.556', recentGames: ['L', 'W', 'W', 'L', 'W'] },
+              { rank: 3, name: '삼성화재 블루팡스', shortName: '삼성화재', wins: 19, losses: 17, winRate: '.528', recentGames: ['W', 'L', 'W', 'W', 'L'] },
+              { rank: 4, name: 'KB손해보험 스타즈', shortName: 'KB손해보험', wins: 18, losses: 18, winRate: '.500', recentGames: ['L', 'W', 'L', 'W', 'W'] },
+              { rank: 5, name: '우리카드 우리WON', shortName: '우리카드', wins: 15, losses: 21, winRate: '.417', recentGames: ['L', 'L', 'W', 'L', 'W'] },
+            ],
+          },
+        ],
+      }
+    };
+  </script>
+  <script type="module" src="./src/game-result-viewer/index.tsx"></script>
+</body>
+</html>

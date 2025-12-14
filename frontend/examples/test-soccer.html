@@ -1,0 +1,114 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Soccer Viewer Test - 경기종료</title>
+  <link href="https://fonts.googleapis.com/css2?family=Oswald:wght@400;600;700&family=Noto+Sans+KR:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <style>
+    @keyframes fadeInUp {
+      from { opacity: 0; transform: translateY(20px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+  </style>
+</head>
+<body style="background: linear-gradient(135deg, #f5f7fa 0%, #e4e8ec 100%); min-height: 100vh; padding: 20px; margin: 0;">
+  <div id="game-result-viewer-root"></div>
+
+  <script>
+    // Mock OpenAI Apps SDK data - 경기종료 상태 (K리그1)
+    window.openai = {
+      toolOutput: {
+        sportType: 'soccer',
+        league: 'K리그1',
+        date: '12.14',
+        status: '경기종료',
+        homeTeam: {
+          name: '전북 현대 모터스',
+          shortName: '전북',
+          logo: '',
+          record: '18승 7무 5패',
+          score: 2,
+          halfScores: { firstHalf: 1, secondHalf: 1 },
+          players: [
+            { number: 1, name: '송범근', position: 'GK', minutes: 90, goals: 0, assists: 0, shots: 0, shotsOnTarget: 0, passes: 25, passAccuracy: '84%', tackles: 0, interceptions: 0, fouls: 0, yellowCards: 0, redCards: 0, saves: 3 },
+            { number: 4, name: '김진수', position: 'DF', minutes: 90, goals: 0, assists: 1, shots: 0, shotsOnTarget: 0, passes: 68, passAccuracy: '89%', tackles: 3, interceptions: 2, fouls: 1, yellowCards: 0, redCards: 0 },
+            { number: 6, name: '홍정호', position: 'DF', minutes: 90, goals: 0, assists: 0, shots: 1, shotsOnTarget: 0, passes: 72, passAccuracy: '91%', tackles: 2, interceptions: 3, fouls: 0, yellowCards: 0, redCards: 0 },
+            { number: 15, name: '김문환', position: 'DF', minutes: 90, goals: 0, assists: 0, shots: 0, shotsOnTarget: 0, passes: 45, passAccuracy: '87%', tackles: 4, interceptions: 1, fouls: 1, yellowCards: 1, redCards: 0 },
+            { number: 23, name: '이승기', position: 'MF', minutes: 78, goals: 0, assists: 0, shots: 2, shotsOnTarget: 1, passes: 42, passAccuracy: '85%', tackles: 1, interceptions: 2, fouls: 2, yellowCards: 0, redCards: 0 },
+            { number: 10, name: '모건', position: 'MF', minutes: 90, goals: 0, assists: 1, shots: 3, shotsOnTarget: 1, passes: 56, passAccuracy: '88%', tackles: 2, interceptions: 1, fouls: 1, yellowCards: 0, redCards: 0 },
+            { number: 8, name: '백승호', position: 'MF', minutes: 90, goals: 0, assists: 0, shots: 2, shotsOnTarget: 1, passes: 61, passAccuracy: '90%', tackles: 3, interceptions: 2, fouls: 0, yellowCards: 0, redCards: 0 },
+            { number: 7, name: '바로우', position: 'MF', minutes: 68, goals: 0, assists: 0, shots: 1, shotsOnTarget: 0, passes: 28, passAccuracy: '82%', tackles: 1, interceptions: 0, fouls: 2, yellowCards: 1, redCards: 0 },
+            { number: 11, name: '조규성', position: 'FW', minutes: 90, goals: 1, assists: 0, shots: 4, shotsOnTarget: 2, passes: 18, passAccuracy: '78%', tackles: 0, interceptions: 0, fouls: 1, yellowCards: 0, redCards: 0 },
+            { number: 9, name: '송민규', position: 'FW', minutes: 90, goals: 1, assists: 0, shots: 3, shotsOnTarget: 2, passes: 22, passAccuracy: '81%', tackles: 1, interceptions: 0, fouls: 0, yellowCards: 0, redCards: 0 },
+            { number: 17, name: '이동경', position: 'FW', minutes: 22, goals: 0, assists: 0, shots: 1, shotsOnTarget: 0, passes: 8, passAccuracy: '75%', tackles: 0, interceptions: 0, fouls: 0, yellowCards: 0, redCards: 0 },
+          ],
+          recentGames: ['W', 'W', 'D', 'W', 'L'],
+          primaryColor: '#006B3F',
+          secondaryColor: '#FFFFFF',
+        },
+        awayTeam: {
+          name: '울산 현대 FC',
+          shortName: '울산',
+          logo: '',
+          record: '16승 8무 6패',
+          score: 1,
+          halfScores: { firstHalf: 0, secondHalf: 1 },
+          players: [
+            { number: 21, name: '조현우', position: 'GK', minutes: 90, goals: 0, assists: 0, shots: 0, shotsOnTarget: 0, passes: 28, passAccuracy: '82%', tackles: 0, interceptions: 0, fouls: 0, yellowCards: 0, redCards: 0, saves: 4 },
+            { number: 2, name: '이기제', position: 'DF', minutes: 90, goals: 0, assists: 0, shots: 0, shotsOnTarget: 0, passes: 52, passAccuracy: '86%', tackles: 2, interceptions: 1, fouls: 1, yellowCards: 0, redCards: 0 },
+            { number: 5, name: '김영권', position: 'DF', minutes: 90, goals: 0, assists: 0, shots: 1, shotsOnTarget: 0, passes: 65, passAccuracy: '88%', tackles: 3, interceptions: 2, fouls: 0, yellowCards: 0, redCards: 0 },
+            { number: 3, name: '김민재', position: 'DF', minutes: 90, goals: 0, assists: 0, shots: 0, shotsOnTarget: 0, passes: 58, passAccuracy: '87%', tackles: 4, interceptions: 3, fouls: 1, yellowCards: 0, redCards: 0 },
+            { number: 13, name: '이명재', position: 'DF', minutes: 90, goals: 0, assists: 0, shots: 1, shotsOnTarget: 0, passes: 48, passAccuracy: '85%', tackles: 2, interceptions: 1, fouls: 2, yellowCards: 1, redCards: 0 },
+            { number: 6, name: '원두재', position: 'MF', minutes: 75, goals: 0, assists: 0, shots: 1, shotsOnTarget: 0, passes: 38, passAccuracy: '84%', tackles: 2, interceptions: 1, fouls: 1, yellowCards: 0, redCards: 0 },
+            { number: 8, name: '이청용', position: 'MF', minutes: 90, goals: 0, assists: 0, shots: 2, shotsOnTarget: 1, passes: 45, passAccuracy: '86%', tackles: 1, interceptions: 1, fouls: 0, yellowCards: 0, redCards: 0 },
+            { number: 14, name: '호날두', position: 'MF', minutes: 90, goals: 0, assists: 1, shots: 1, shotsOnTarget: 1, passes: 52, passAccuracy: '88%', tackles: 2, interceptions: 2, fouls: 1, yellowCards: 0, redCards: 0 },
+            { number: 10, name: '이동준', position: 'MF', minutes: 65, goals: 0, assists: 0, shots: 1, shotsOnTarget: 0, passes: 32, passAccuracy: '81%', tackles: 0, interceptions: 0, fouls: 1, yellowCards: 0, redCards: 0 },
+            { number: 9, name: '주민규', position: 'FW', minutes: 90, goals: 1, assists: 0, shots: 4, shotsOnTarget: 2, passes: 15, passAccuracy: '73%', tackles: 0, interceptions: 0, fouls: 2, yellowCards: 0, redCards: 0 },
+            { number: 11, name: '움티티', position: 'FW', minutes: 25, goals: 0, assists: 0, shots: 1, shotsOnTarget: 0, passes: 6, passAccuracy: '67%', tackles: 0, interceptions: 0, fouls: 0, yellowCards: 0, redCards: 0 },
+          ],
+          recentGames: ['W', 'D', 'W', 'L', 'W'],
+          primaryColor: '#004B87',
+          secondaryColor: '#FF6600',
+        },
+        goals: [
+          { minute: 23, scorer: '조규성', assist: '김진수', team: 'home' },
+          { minute: 67, scorer: '주민규', team: 'away' },
+          { minute: 82, scorer: '송민규', assist: '모건', team: 'home' },
+        ],
+        gameRecords: [
+          { label: '점유율', home: '54%', away: '46%' },
+          { label: '슈팅', home: 14, away: 11 },
+          { label: '유효슈팅', home: 6, away: 4 },
+          { label: '패스', home: 456, away: 398 },
+          { label: '패스성공률', home: '85%', away: '82%' },
+          { label: '파울', home: 12, away: 15 },
+        ],
+        headToHead: {
+          totalGames: 10,
+          homeWins: 4,
+          awayWins: 3,
+          draws: 3,
+          recentMatches: [
+            { date: '08.15', homeScore: 1, awayScore: 1, winner: 'draw' },
+            { date: '04.20', homeScore: 2, awayScore: 1, winner: 'home' },
+            { date: '11.05', homeScore: 0, awayScore: 2, winner: 'away' },
+          ],
+        },
+        standings: [
+          {
+            teams: [
+              { rank: 1, name: '전북 현대 모터스', shortName: '전북', played: 30, wins: 18, draws: 7, losses: 5, goalsFor: 52, goalsAgainst: 28, goalDifference: 24, points: 61, recentGames: ['W', 'W', 'D', 'W', 'L'] },
+              { rank: 2, name: '울산 현대 FC', shortName: '울산', played: 30, wins: 16, draws: 8, losses: 6, goalsFor: 48, goalsAgainst: 30, goalDifference: 18, points: 56, recentGames: ['W', 'D', 'W', 'L', 'W'] },
+              { rank: 3, name: 'FC 서울', shortName: '서울', played: 30, wins: 14, draws: 9, losses: 7, goalsFor: 42, goalsAgainst: 32, goalDifference: 10, points: 51, recentGames: ['D', 'W', 'W', 'L', 'W'] },
+              { rank: 4, name: '포항 스틸러스', shortName: '포항', played: 30, wins: 13, draws: 10, losses: 7, goalsFor: 38, goalsAgainst: 28, goalDifference: 10, points: 49, recentGames: ['W', 'D', 'D', 'W', 'L'] },
+              { rank: 5, name: '제주 유나이티드', shortName: '제주', played: 30, wins: 12, draws: 8, losses: 10, goalsFor: 35, goalsAgainst: 32, goalDifference: 3, points: 44, recentGames: ['L', 'W', 'D', 'L', 'W'] },
+            ],
+          },
+        ],
+      }
+    };
+  </script>
+  <script type="module" src="./src/game-result-viewer/index.tsx"></script>
+</body>
+</html>

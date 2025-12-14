@@ -1,0 +1,75 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Volleyball Viewer Test - 경기전</title>
+  <link href="https://fonts.googleapis.com/css2?family=Oswald:wght@400;600;700&family=Noto+Sans+KR:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <style>
+    @keyframes fadeInUp {
+      from { opacity: 0; transform: translateY(20px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+  </style>
+</head>
+<body style="background: linear-gradient(135deg, #f5f7fa 0%, #e4e8ec 100%); min-height: 100vh; padding: 20px; margin: 0;">
+  <div id="game-result-viewer-root"></div>
+
+  <script>
+    // Mock OpenAI Apps SDK data - 경기전 상태
+    window.openai = {
+      toolOutput: {
+        sportType: 'volleyball',
+        league: 'V리그여자',
+        date: '12.15',
+        time: '19:00',
+        status: '경기전',
+        homeTeam: {
+          name: '흥국생명 핑크스파이더스',
+          shortName: '흥국생명',
+          logo: '',
+          record: '22승 14패',
+          setsWon: 0,
+          players: [],
+          recentGames: ['W', 'W', 'L', 'W', 'W'],
+          primaryColor: '#E91E63',
+          secondaryColor: '#FFFFFF',
+        },
+        awayTeam: {
+          name: 'GS칼텍스 서울 KIXX',
+          shortName: 'GS칼텍스',
+          logo: '',
+          record: '20승 16패',
+          setsWon: 0,
+          players: [],
+          recentGames: ['L', 'W', 'W', 'W', 'L'],
+          primaryColor: '#FF6B00',
+          secondaryColor: '#FFFFFF',
+        },
+        headToHead: {
+          totalGames: 10,
+          homeWins: 6,
+          awayWins: 4,
+          recentMatches: [
+            { date: '11.25', homeSets: 3, awaySets: 2, winner: 'home' },
+            { date: '10.12', homeSets: 2, awaySets: 3, winner: 'away' },
+            { date: '03.20', homeSets: 3, awaySets: 1, winner: 'home' },
+          ],
+        },
+        standings: [
+          {
+            teams: [
+              { rank: 1, name: '흥국생명 핑크스파이더스', shortName: '흥국생명', wins: 22, losses: 14, winRate: '.611', recentGames: ['W', 'W', 'L', 'W', 'W'] },
+              { rank: 2, name: 'GS칼텍스 서울 KIXX', shortName: 'GS칼텍스', wins: 20, losses: 16, winRate: '.556', recentGames: ['L', 'W', 'W', 'W', 'L'] },
+              { rank: 3, name: '현대건설 힐스테이트', shortName: '현대건설', wins: 19, losses: 17, winRate: '.528', recentGames: ['W', 'L', 'W', 'L', 'W'] },
+              { rank: 4, name: '한국도로공사 하이패스', shortName: '도로공사', wins: 18, losses: 18, winRate: '.500', recentGames: ['L', 'L', 'W', 'W', 'L'] },
+              { rank: 5, name: 'AI페퍼스', shortName: 'AI페퍼스', wins: 16, losses: 20, winRate: '.444', recentGames: ['W', 'L', 'L', 'W', 'L'] },
+            ],
+          },
+        ],
+      }
+    };
+  </script>
+  <script type="module" src="./src/game-result-viewer/index.tsx"></script>
+</body>
+</html>

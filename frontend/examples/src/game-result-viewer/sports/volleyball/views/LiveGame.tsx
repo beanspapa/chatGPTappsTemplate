@@ -1,26 +1,36 @@
-import type { BasketballGameData, BasketballGameRecord, RecentGameResult, Conference, LeagueStandings as LeagueStandingsType, StandingsTeam } from '../types';
-import { useState } from 'react';
+import type { VolleyballGameData, VolleyballGameRecord, RecentGameResult, LeagueStandings as LeagueStandingsType, StandingsTeam } from '../types';
 
 interface LiveGameProps {
-  data: BasketballGameData;
+  data: VolleyballGameData;
 }
 
 /**
  * 경기중 화면
  * - 헤더 (리그, 날짜, LIVE 상태)
- * - 스코어보드 (현재 점수 + 쿼터별 점수)
+ * - 스코어보드 (현재 세트 획득 수)
+ * - 세트별 점수 테이블
  * - 경기 기록 (팀 스탯)
  * - 양팀 비교 (최근 5경기, 맞대결)
  * - 리그 순위
  */
 export function LiveGame({ data }: LiveGameProps) {
+  const homeColor = data.homeTeam.primaryColor;
+  const awayColor = data.awayTeam.primaryColor;
+
   return (
     <div className="relative max-w-[600px] mx-auto p-8 bg-white rounded-3xl overflow-hidden shadow-[0_10px_40px_rgba(0,0,0,0.08),0_2px_10px_rgba(0,0,0,0.04)]">
       {/* 배경 패턴 */}
       <div className="absolute top-0 left-0 w-full h-[200px] bg-gradient-to-br from-red-500/5 to-orange-500/5 pointer-events-none" />
 
       {/* 헤더 */}
-      <Header league={data.league} date={data.date} status={data.status} />
+      <Header
+        league={data.league}
+        date={data.date}
+        status={data.status}
+        currentSet={data.currentSet}
+        homeColor={homeColor}
+        awayColor={awayColor}
+      />
 
       {/* 스코어보드 */}
       <ScoreboardSection
@@ -28,11 +38,12 @@ export function LiveGame({ data }: LiveGameProps) {
         awayTeam={data.awayTeam}
       />
 
-      {/* 쿼터별 점수 */}
-      {data.homeTeam.quarterScores && data.awayTeam.quarterScores && (
-        <QuarterScoresSection
+      {/* 세트별 점수 */}
+      {data.homeTeam.setScores && data.awayTeam.setScores && (
+        <SetScoresSection
           homeTeam={data.homeTeam}
           awayTeam={data.awayTeam}
+          currentSet={data.currentSet}
         />
       )}
 
@@ -52,8 +63,8 @@ export function LiveGame({ data }: LiveGameProps) {
       {data.standings && data.standings.length > 0 && (
         <StandingsSection
           standings={data.standings}
-          homeTeamName={data.homeTeam.shortName}
-          awayTeamName={data.awayTeam.shortName}
+          homeTeam={data.homeTeam}
+          awayTeam={data.awayTeam}
         />
       )}
     </div>
@@ -61,13 +72,34 @@ export function LiveGame({ data }: LiveGameProps) {
 }
 
 // 헤더 컴포넌트
-function Header({ league, date, status }: { league: string; date: string; status: string }) {
+function Header({
+  league,
+  date,
+  status,
+  currentSet,
+  homeColor,
+  awayColor
+}: {
+  league: string;
+  date: string;
+  status: string;
+  currentSet?: number;
+  homeColor: string;
+  awayColor: string;
+}) {
   return (
     <header className="relative z-10 flex items-center justify-between mb-6 animate-[fadeInUp_0.6s_ease-out]">
-      <span className="bg-gradient-to-r from-[#c9082a] to-[#17408b] px-4 py-1.5 rounded-full text-sm font-bold tracking-wider text-white shadow-[0_4px_12px_rgba(201,8,42,0.25)]">
+      <span
+        className="px-4 py-1.5 rounded-full text-sm font-bold tracking-wider text-white shadow-[0_4px_12px_rgba(0,0,0,0.25)]"
+        style={{
+          background: `linear-gradient(135deg, ${homeColor}, ${awayColor})`
+        }}
+      >
         {league}
       </span>
-      <span className="text-gray-500 text-sm">{date}</span>
+      <span className="text-gray-500 text-sm">
+        {date} {currentSet && `| ${currentSet}세트`}
+      </span>
       <span className="bg-gradient-to-r from-red-500 to-red-600 text-white px-3.5 py-1.5 rounded-full text-xs font-semibold animate-pulse flex items-center gap-1.5">
         <span className="w-2 h-2 bg-white rounded-full animate-ping" />
         {status}
@@ -81,37 +113,44 @@ function ScoreboardSection({
   homeTeam,
   awayTeam,
 }: {
-  homeTeam: BasketballGameData['homeTeam'];
-  awayTeam: BasketballGameData['awayTeam'];
+  homeTeam: VolleyballGameData['homeTeam'];
+  awayTeam: VolleyballGameData['awayTeam'];
 }) {
-  const homeWins = homeTeam.score > awayTeam.score;
-  const awayWins = awayTeam.score > homeTeam.score;
+  const homeLeads = homeTeam.setsWon > awayTeam.setsWon;
+  const awayLeads = awayTeam.setsWon > homeTeam.setsWon;
 
   return (
     <section className="relative z-10 flex items-center justify-between py-8 animate-[fadeInUp_0.6s_ease-out_0.1s_both]">
       {/* 홈팀 */}
       <div className="flex flex-col items-center gap-2 flex-1">
-        <TeamLogo name={homeTeam.shortName} isHome />
+        <TeamLogo team={homeTeam} />
         <div className="text-base font-semibold text-gray-800">{homeTeam.shortName}</div>
         <div className="text-xs text-gray-500">{homeTeam.record}</div>
       </div>
 
-      {/* 점수 */}
+      {/* 세트 점수 */}
       <div className="flex flex-col items-center relative flex-[1.5]">
         <div className="flex items-center gap-4">
-          <span className={`text-6xl font-extrabold font-['Oswald',sans-serif] tracking-tight transition-all duration-300 ${homeWins ? 'text-[#552583]' : 'text-gray-300'}`}>
-            {homeTeam.score}
+          <span
+            className={`text-6xl font-extrabold font-['Oswald',sans-serif] tracking-tight transition-all duration-300 ${homeLeads ? '' : 'opacity-40'}`}
+            style={{ color: homeLeads ? homeTeam.primaryColor : 'rgb(209 213 219)' }}
+          >
+            {homeTeam.setsWon}
           </span>
           <span className="text-base text-gray-400 font-semibold">VS</span>
-          <span className={`text-6xl font-extrabold font-['Oswald',sans-serif] tracking-tight transition-all duration-300 ${awayWins ? 'text-[#1D428A]' : 'text-gray-300'}`}>
-            {awayTeam.score}
+          <span
+            className={`text-6xl font-extrabold font-['Oswald',sans-serif] tracking-tight transition-all duration-300 ${awayLeads ? '' : 'opacity-40'}`}
+            style={{ color: awayLeads ? awayTeam.primaryColor : 'rgb(209 213 219)' }}
+          >
+            {awayTeam.setsWon}
           </span>
         </div>
+        <div className="text-xs text-gray-400 mt-2">세트</div>
       </div>
 
       {/* 원정팀 */}
       <div className="flex flex-col items-center gap-2 flex-1">
-        <TeamLogo name={awayTeam.shortName} isHome={false} />
+        <TeamLogo team={awayTeam} />
         <div className="text-base font-semibold text-gray-800">{awayTeam.shortName}</div>
         <div className="text-xs text-gray-500">{awayTeam.record}</div>
       </div>
@@ -119,86 +158,127 @@ function ScoreboardSection({
   );
 }
 
-// 팀 로고 컴포넌트
-function TeamLogo({ name, isHome }: { name: string; isHome: boolean }) {
-  const initials = name.slice(0, 3).toUpperCase();
+// 팀 로고 컴포넌트 (동적 컬러)
+function TeamLogo({ team }: { team: VolleyballGameData['homeTeam'] }) {
+  const initials = team.shortName.slice(0, 3).toUpperCase();
 
   return (
     <div
-      className={`w-20 h-20 rounded-full flex items-center justify-center text-xl font-extrabold text-white cursor-pointer transition-all duration-300 hover:scale-110 hover:rotate-[5deg] ${
-        isHome
-          ? 'bg-gradient-to-br from-[#552583] to-[#FDB927] shadow-[0_8px_24px_rgba(85,37,131,0.35)]'
-          : 'bg-gradient-to-br from-[#1D428A] to-[#FFC72C] shadow-[0_8px_24px_rgba(29,66,138,0.35)]'
-      }`}
+      className="w-20 h-20 rounded-full flex items-center justify-center text-xl font-extrabold text-white cursor-pointer transition-all duration-300 hover:scale-110 hover:rotate-[5deg]"
+      style={{
+        background: `linear-gradient(135deg, ${team.primaryColor}, ${team.secondaryColor})`,
+        boxShadow: `0 8px 24px ${team.primaryColor}40`
+      }}
     >
       {initials}
     </div>
   );
 }
 
-// 쿼터별 점수 섹션
-function QuarterScoresSection({
+// 세트별 점수 섹션
+function SetScoresSection({
   homeTeam,
   awayTeam,
+  currentSet,
 }: {
-  homeTeam: BasketballGameData['homeTeam'];
-  awayTeam: BasketballGameData['awayTeam'];
+  homeTeam: VolleyballGameData['homeTeam'];
+  awayTeam: VolleyballGameData['awayTeam'];
+  currentSet?: number;
 }) {
-  const homeQ = homeTeam.quarterScores!;
-  const awayQ = awayTeam.quarterScores!;
-  const hasOT = homeQ.ot && homeQ.ot.length > 0;
+  const homeS = homeTeam.setScores!;
+  const awayS = awayTeam.setScores!;
 
-  const quarters = [
-    { label: '1Q', home: homeQ.q1, away: awayQ.q1 },
-    { label: '2Q', home: homeQ.q2, away: awayQ.q2 },
-    { label: '3Q', home: homeQ.q3, away: awayQ.q3 },
-    { label: '4Q', home: homeQ.q4, away: awayQ.q4 },
+  const sets = [
+    { label: 'SET1', home: homeS.set1, away: awayS.set1 },
+    { label: 'SET2', home: homeS.set2, away: awayS.set2 },
+    { label: 'SET3', home: homeS.set3, away: awayS.set3 },
   ];
 
-  if (hasOT) {
-    homeQ.ot!.forEach((score, idx) => {
-      quarters.push({
-        label: idx === 0 ? 'OT' : `OT${idx + 1}`,
-        home: score,
-        away: awayQ.ot![idx],
-      });
-    });
+  if (homeS.set4 !== undefined) {
+    sets.push({ label: 'SET4', home: homeS.set4, away: awayS.set4 ?? 0 });
+  }
+  if (homeS.set5 !== undefined) {
+    sets.push({ label: 'SET5', home: homeS.set5, away: awayS.set5 ?? 0 });
   }
 
   return (
     <section className="relative z-10 mb-6 animate-[fadeInUp_0.6s_ease-out_0.2s_both]">
       <div className="bg-gray-50 rounded-2xl p-4 border border-gray-200">
-        <div className={`grid items-center gap-2`} style={{ gridTemplateColumns: `60px repeat(${quarters.length}, 1fr) 1fr` }}>
+        <div className="grid items-center gap-2" style={{ gridTemplateColumns: `60px repeat(${sets.length}, 1fr) 1fr` }}>
           {/* 헤더 */}
           <div className="text-xs text-gray-500 font-semibold uppercase"></div>
-          {quarters.map((q) => (
-            <div key={q.label} className="text-xs text-gray-500 font-semibold uppercase text-center">{q.label}</div>
+          {sets.map((s, idx) => (
+            <div
+              key={s.label}
+              className={`text-xs font-semibold uppercase text-center ${
+                currentSet === idx + 1 ? 'text-red-500' : 'text-gray-500'
+              }`}
+            >
+              {s.label}
+              {currentSet === idx + 1 && <span className="ml-1">🔴</span>}
+            </div>
           ))}
-          <div className="text-xs text-gray-500 font-semibold uppercase text-center">FINAL</div>
+          <div className="text-xs text-gray-500 font-semibold uppercase text-center">SETS</div>
 
           {/* 홈팀 */}
-          <div className="text-sm font-bold text-[#552583]">{homeTeam.shortName}</div>
-          {quarters.map((q) => (
-            <div
-              key={`home-${q.label}`}
-              className={`text-base text-center font-medium ${q.home > q.away ? 'text-green-600 font-bold' : 'text-gray-400'}`}
-            >
-              {q.home}
-            </div>
-          ))}
-          <div className="text-xl text-center font-bold text-[#552583]">{homeTeam.score}</div>
+          <div className="text-sm font-bold" style={{ color: homeTeam.primaryColor }}>{homeTeam.shortName}</div>
+          {sets.map((s, idx) => {
+            const setIndex = idx + 1;
+            const isCurrentSet = currentSet === setIndex;
+            const isFinished = currentSet ? setIndex < currentSet : false;
+            const homeWon = isFinished && s.home > s.away;
+
+            return (
+              <div
+                key={`home-${s.label}`}
+                className={`text-base text-center font-medium ${
+                  isCurrentSet
+                    ? 'text-red-600 font-bold'
+                    : homeWon
+                    ? 'text-green-600 font-bold'
+                    : 'text-gray-400'
+                }`}
+              >
+                {s.home}
+              </div>
+            );
+          })}
+          <div
+            className="text-xl text-center font-bold"
+            style={{ color: homeTeam.primaryColor }}
+          >
+            {homeTeam.setsWon}
+          </div>
 
           {/* 원정팀 */}
-          <div className="text-sm font-bold text-[#1D428A]">{awayTeam.shortName}</div>
-          {quarters.map((q) => (
-            <div
-              key={`away-${q.label}`}
-              className={`text-base text-center font-medium ${q.away > q.home ? 'text-green-600 font-bold' : 'text-gray-400'}`}
-            >
-              {q.away}
-            </div>
-          ))}
-          <div className="text-xl text-center font-bold text-[#1D428A]">{awayTeam.score}</div>
+          <div className="text-sm font-bold" style={{ color: awayTeam.primaryColor }}>{awayTeam.shortName}</div>
+          {sets.map((s, idx) => {
+            const setIndex = idx + 1;
+            const isCurrentSet = currentSet === setIndex;
+            const isFinished = currentSet ? setIndex < currentSet : false;
+            const awayWon = isFinished && s.away > s.home;
+
+            return (
+              <div
+                key={`away-${s.label}`}
+                className={`text-base text-center font-medium ${
+                  isCurrentSet
+                    ? 'text-red-600 font-bold'
+                    : awayWon
+                    ? 'text-green-600 font-bold'
+                    : 'text-gray-400'
+                }`}
+              >
+                {s.away}
+              </div>
+            );
+          })}
+          <div
+            className="text-xl text-center font-bold"
+            style={{ color: awayTeam.primaryColor }}
+          >
+            {awayTeam.setsWon}
+          </div>
         </div>
       </div>
     </section>
@@ -209,7 +289,7 @@ function QuarterScoresSection({
 function GameRecordsSection({
   gameRecords,
 }: {
-  gameRecords: BasketballGameRecord[];
+  gameRecords: VolleyballGameRecord[];
 }) {
   return (
     <section className="relative z-10 mb-6 animate-[fadeInUp_0.6s_ease-out_0.3s_both]">
@@ -222,7 +302,7 @@ function GameRecordsSection({
           const homeValue = typeof record.home === 'number' ? record.home : parseFloat(String(record.home)) || 0;
           const awayValue = typeof record.away === 'number' ? record.away : parseFloat(String(record.away)) || 0;
 
-          const isLowerBetter = record.label === '턴오버' || record.label === '파울' || record.label === 'TO';
+          const isLowerBetter = record.label === '서브 실책' || record.label === '실책';
           const homeWins = isLowerBetter ? homeValue < awayValue : homeValue > awayValue;
           const awayWins = isLowerBetter ? awayValue < homeValue : awayValue > homeValue;
 
@@ -254,9 +334,9 @@ function ComparisonSection({
   awayTeam,
   headToHead,
 }: {
-  homeTeam: BasketballGameData['homeTeam'];
-  awayTeam: BasketballGameData['awayTeam'];
-  headToHead?: BasketballGameData['headToHead'];
+  homeTeam: VolleyballGameData['homeTeam'];
+  awayTeam: VolleyballGameData['awayTeam'];
+  headToHead?: VolleyballGameData['headToHead'];
 }) {
   return (
     <section className="relative z-10 mb-6 animate-[fadeInUp_0.6s_ease-out_0.4s_both]">
@@ -268,12 +348,12 @@ function ComparisonSection({
       {(homeTeam.recentGames || awayTeam.recentGames) && (
         <div className="flex justify-between items-center p-5 bg-gradient-to-br from-gray-50 to-gray-100 rounded-2xl mb-4 border border-gray-200">
           <div className="flex flex-col items-center gap-3">
-            <span className="font-bold text-sm text-[#552583]">{homeTeam.shortName}</span>
+            <span className="font-bold text-sm" style={{ color: homeTeam.primaryColor }}>{homeTeam.shortName}</span>
             <RecentGamesRow games={homeTeam.recentGames} />
           </div>
           <div className="text-xs text-gray-500">최근 5경기</div>
           <div className="flex flex-col items-center gap-3">
-            <span className="font-bold text-sm text-[#1D428A]">{awayTeam.shortName}</span>
+            <span className="font-bold text-sm" style={{ color: awayTeam.primaryColor }}>{awayTeam.shortName}</span>
             <RecentGamesRow games={awayTeam.recentGames} />
           </div>
         </div>
@@ -284,9 +364,19 @@ function ComparisonSection({
         <div className="text-center p-6 bg-white rounded-2xl border border-gray-200 shadow-[0_2px_8px_rgba(0,0,0,0.04)]">
           <div className="text-xs text-gray-500 mb-4">상대 전적 (최근 {headToHead.totalGames}경기)</div>
           <div className="flex justify-center items-center gap-8">
-            <span className="text-5xl font-extrabold text-[#552583] font-['Oswald',sans-serif]">{headToHead.homeWins}</span>
+            <span
+              className="text-5xl font-extrabold font-['Oswald',sans-serif]"
+              style={{ color: homeTeam.primaryColor }}
+            >
+              {headToHead.homeWins}
+            </span>
             <span className="text-2xl text-gray-300">-</span>
-            <span className="text-5xl font-extrabold text-[#1D428A] font-['Oswald',sans-serif]">{headToHead.awayWins}</span>
+            <span
+              className="text-5xl font-extrabold font-['Oswald',sans-serif]"
+              style={{ color: awayTeam.primaryColor }}
+            >
+              {headToHead.awayWins}
+            </span>
           </div>
           <div className="flex justify-center gap-24 mt-2 text-xs text-gray-500">
             <span>승</span>
@@ -323,21 +413,14 @@ function RecentGamesRow({ games }: { games?: RecentGameResult[] }) {
 // 순위 섹션
 function StandingsSection({
   standings,
-  homeTeamName,
-  awayTeamName,
+  homeTeam,
+  awayTeam,
 }: {
   standings: LeagueStandingsType[];
-  homeTeamName: string;
-  awayTeamName: string;
+  homeTeam: VolleyballGameData['homeTeam'];
+  awayTeam: VolleyballGameData['awayTeam'];
 }) {
-  const hasConferences = standings.length > 1 && standings[0].conference;
-  const [activeConference, setActiveConference] = useState<Conference>(
-    hasConferences ? (standings[0].conference as Conference) : '동부'
-  );
-
-  const currentStandings = hasConferences
-    ? standings.find(s => s.conference === activeConference) || standings[0]
-    : standings[0];
+  const currentStandings = standings[0];
 
   return (
     <section className="relative z-10 animate-[fadeInUp_0.6s_ease-out_0.5s_both]">
@@ -345,33 +428,14 @@ function StandingsSection({
         <span>🏆</span> 순위
       </h3>
 
-      {/* 컨퍼런스 탭 */}
-      {hasConferences && (
-        <div className="flex mb-4 bg-gray-100 rounded-xl p-1">
-          {standings.map((s) => (
-            <button
-              key={s.conference}
-              onClick={() => setActiveConference(s.conference as Conference)}
-              className={`flex-1 py-2 text-sm font-medium rounded-lg transition-all duration-200 ${
-                activeConference === s.conference
-                  ? 'bg-white text-gray-800 shadow-sm'
-                  : 'text-gray-500 hover:text-gray-700'
-              }`}
-            >
-              {s.conference}
-            </button>
-          ))}
-        </div>
-      )}
-
       {/* 순위 테이블 */}
       <div className="flex flex-col gap-1">
         {currentStandings.teams.slice(0, 5).map((team) => (
           <StandingRow
             key={team.rank}
             team={team}
-            isHomeTeam={team.shortName === homeTeamName}
-            isAwayTeam={team.shortName === awayTeamName}
+            homeTeam={homeTeam}
+            awayTeam={awayTeam}
           />
         ))}
       </div>
@@ -382,29 +446,44 @@ function StandingsSection({
 // 순위 행
 function StandingRow({
   team,
-  isHomeTeam,
-  isAwayTeam,
+  homeTeam,
+  awayTeam,
 }: {
   team: StandingsTeam;
-  isHomeTeam: boolean;
-  isAwayTeam: boolean;
+  homeTeam: VolleyballGameData['homeTeam'];
+  awayTeam: VolleyballGameData['awayTeam'];
 }) {
-  const highlightClass = isHomeTeam
-    ? 'bg-gradient-to-r from-[rgba(85,37,131,0.08)] to-[rgba(253,185,39,0.05)] border-l-[3px] border-l-[#552583]'
-    : isAwayTeam
-    ? 'bg-gradient-to-r from-[rgba(29,66,138,0.08)] to-[rgba(255,199,44,0.05)] border-l-[3px] border-l-[#1D428A]'
-    : 'bg-gray-50 border-l-[3px] border-l-transparent';
+  const isHomeTeam = team.shortName === homeTeam.shortName;
+  const isAwayTeam = team.shortName === awayTeam.shortName;
 
-  const teamColorClass = isHomeTeam
-    ? 'text-[#552583]'
+  const highlightStyle = isHomeTeam
+    ? {
+        background: `linear-gradient(to right, ${homeTeam.primaryColor}14, ${homeTeam.secondaryColor}0a)`,
+        borderLeft: `3px solid ${homeTeam.primaryColor}`
+      }
     : isAwayTeam
-    ? 'text-[#1D428A]'
-    : 'text-gray-800';
+    ? {
+        background: `linear-gradient(to right, ${awayTeam.primaryColor}14, ${awayTeam.secondaryColor}0a)`,
+        borderLeft: `3px solid ${awayTeam.primaryColor}`
+      }
+    : {
+        background: 'rgb(249 250 251)',
+        borderLeft: '3px solid transparent'
+      };
+
+  const teamColor = isHomeTeam
+    ? homeTeam.primaryColor
+    : isAwayTeam
+    ? awayTeam.primaryColor
+    : 'rgb(31 41 55)';
 
   return (
-    <div className={`grid grid-cols-[30px_50px_40px_40px_55px_1fr] items-center py-3.5 px-3 rounded-xl transition-all duration-300 hover:bg-white hover:shadow-[0_2px_8px_rgba(0,0,0,0.06)] ${highlightClass}`}>
+    <div
+      className="grid grid-cols-[30px_50px_40px_40px_55px_1fr] items-center py-3.5 px-3 rounded-xl transition-all duration-300 hover:bg-white hover:shadow-[0_2px_8px_rgba(0,0,0,0.06)]"
+      style={highlightStyle}
+    >
       <span className="text-sm text-gray-500 font-semibold">{team.rank}</span>
-      <span className={`text-sm font-bold ${teamColorClass}`}>{team.shortName}</span>
+      <span className="text-sm font-bold" style={{ color: teamColor }}>{team.shortName}</span>
       <span className="text-sm text-gray-600 text-center">{team.wins}</span>
       <span className="text-sm text-gray-600 text-center">{team.losses}</span>
       <span className="text-sm text-gray-800 font-semibold text-center">{team.winRate}</span>
